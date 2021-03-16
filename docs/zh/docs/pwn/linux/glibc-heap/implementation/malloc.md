@@ -480,7 +480,9 @@ while 最多迭代10000次后退出。
 
 #### large chunk
 
-**注： 或许会很奇怪，为什么这里没有先去看 small chunk 是否满足新需求了呢？这是因为small bin 在循环之前已经判断过了，这里如果有的话，就是合并后的才出现chunk。但是在大循环外，large chunk 只是单纯地找到其索引，所以觉得在这里直接先判断是合理的，而且也为了下面可以再去找较大的chunk。**
+**注： 或许会很奇怪，为什么这里没有先去看 small chunk 是否满足新需求了呢？
+因为走到这个位置之前，对于small size申请已经尝试过：1.在smallbin里查找，没找到；2.整理fastbin放到unsortedbin里，在unsortedbin里查找没找到。也就是说small size申请已经不可能能在已有的bin数组里找到完全合适的了。但是large size申请还没尝试呢，所以large申请也要尝试找有没有完全合适的(size == nb)。 如果这一步还没找到完全合适的，那么无论是large size还是small size申请，都要进行下一个分配方案了：从偏大的chunk里分割出需要的，并把剩余的处理了；或者是直接从top chunk分配
+**
 
 如果请求的 chunk 在 large chunk 范围内，就在对应的 bin 中从小到大进行扫描，找到第一个合适的。
 
